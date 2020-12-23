@@ -86,7 +86,8 @@ void writeplotfile(int m, int n, int scale)
 
   gnuplot = fopen("cfd.plt","w");
 
-  fprintf(gnuplot,"set size square\n");
+  fprintf(gnuplot,"set terminal png size 800,800\n");
+  fprintf(gnuplot,"set output 'plt.png'\n");
   fprintf(gnuplot,"set key off\n");
   fprintf(gnuplot,"unset xtics\n");
   fprintf(gnuplot,"unset ytics\n");
