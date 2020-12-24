@@ -43,6 +43,7 @@ int main(int argc, char **argv)
   int nthread;
 
   double tstart, tstop, ttot, titer;
+  double titerstart, titerend, titertot;
 
   //do we stop because of tolerance?
   if (tolerance > 0) {checkerr=1;}
@@ -171,44 +172,49 @@ int main(int argc, char **argv)
   
   tstart=gettime();
 
+  double tt = 0;
+
   for(iter=1;iter<=numiter;iter++)
     {
+      titerstart = gettime();
       //calculate psi for next iteration
 
-      if (irrotational)
-	{
+//      if (irrotational)
+//	{
 	  jacobistep(psitmp,psi,m,n);
-	}
-      else
-	{
-	  jacobistepvort(zettmp,psitmp,zet,psi,m,n,re);
-	}
+      titerend = gettime();
+      titertot += (titerend-titerstart);
+//	}
+//      else
+//	{
+//	  jacobistepvort(zettmp,psitmp,zet,psi,m,n,re);
+//	}
 
       //calculate current error if required
 
-      if (checkerr || iter == numiter)
-	{
-	  error = deltasq(psitmp,psi,m,n);
-
-	  if(!irrotational)
-	    {
-	      error += deltasq(zettmp,zet,m,n);
-	    }
-
-	  error=sqrt(error);
-	  error=error/bnorm;
-	}
+//      if (checkerr || iter == numiter)
+//	{
+//	  error = deltasq(psitmp,psi,m,n);
+//
+//	  if(!irrotational)
+//	    {
+//	      error += deltasq(zettmp,zet,m,n);
+//	    }
+//
+//	  error=sqrt(error);
+//	  error=error/bnorm;
+//	}
 
       //quit early if we have reached required tolerance
 
-      if (checkerr)
-	{
-	  if (error < tolerance)
-	    {
-	      printf("Converged on iteration %d\n",iter);
-	      break;
-	    }
-	}
+//      if (checkerr)
+//	{
+//	  if (error < tolerance)
+//	    {
+//	      printf("Converged on iteration %d\n",iter);
+//	      break;
+//	    }
+//	}
 
       //copy back
 
@@ -221,23 +227,23 @@ int main(int argc, char **argv)
 	    }
 	}
 
-      if (!irrotational)
-	{
-#pragma omp parallel for default(none) private(i,j) shared(zet,zettmp,m,n)
-	  for(i=1;i<=m;i++)
-	    {
-	      for(j=1;j<=n;j++)
-		{
-		  zet[i][j]=zettmp[i][j];
-		}
-	    }
-	}
+//      if (!irrotational)
+//	{
+//#pragma omp parallel for default(none) private(i,j) shared(zet,zettmp,m,n)
+//	  for(i=1;i<=m;i++)
+//	    {
+//	      for(j=1;j<=n;j++)
+//		{
+//		  zet[i][j]=zettmp[i][j];
+//		}
+//	    }
+//	}
 
-      if (!irrotational)
-	{
-	  //update zeta BCs that depend on psi
-	  boundaryzet(zet,psi,m,n);
-	}
+//      if (!irrotational)
+//	{
+//	  //update zeta BCs that depend on psi
+//	  boundaryzet(zet,psi,m,n);
+//	}
 
       //print loop information
 /*
@@ -262,13 +268,16 @@ int main(int argc, char **argv)
   ttot=tstop-tstart;
   titer=ttot/(double)iter;
 
+  titertot=titertot/(double )iter;
+
 
   //print out some stats
 
   printf("\n... finished\n");
-  printf("After %d iterations, the error is %g\n",iter,error);
+//  printf("After %d iterations, the error is %g\n",iter,error);
   printf("Time for %d iterations was %g seconds\n",iter,ttot);
   printf("Each iteration took %g seconds\n",titer);
+  printf("Each calc took %g seconds\n",titer);
 
   //output results
 
